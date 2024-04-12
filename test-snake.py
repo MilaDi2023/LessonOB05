@@ -1,93 +1,92 @@
+# Этот код помог сгенерировать ИИ-помощник без плагина Code Interpreter
+
 import pygame
-import pygame_gui
 import time
 import random
 
-# Инициализация Pygame и задание размеров экрана
 pygame.init()
-dis_width = 800
-dis_height = 600
-dis = pygame.display.set_mode((dis_width, dis_height))
 
-# Задаем цвета
+# Определение цветов
 white = (255, 255, 255)
-blue = (50, 153, 213)
+yellow = (255, 255, 102)
+black = (0, 0, 0)
+red = (213, 50, 80)
 green = (0, 255, 0)
+blue = (50, 153, 213)
+
+# Размеры окна игры
+dis_width = 600
+dis_height = 400
+
+dis = pygame.display.set_mode((dis_width, dis_height))
+pygame.display.set_caption('Змейка')
 
 clock = pygame.time.Clock()
-snake_speed = 30
+
 snake_block = 10
+snake_speed = 7
 
-font_style = pygame.font.SysFont(None, 50)
+font_style = pygame.font.SysFont("Arial", 25)
+score_font = pygame.font.SysFont("comicsansms", 35)
 
-
-def our_snake(snake_block, snake_list):  # Функция для рисования змейки
+def our_snake(snake_block, snake_list):
     for x in snake_list:
-        pygame.draw.rect(dis, white, [x[0], x[1], snake_block, snake_block])
+        pygame.draw.rect(dis, black, [x[0], x[1], snake_block, snake_block])
 
+def message(msg, color):
+    mesg = font_style.render(msg, True, color)
+    dis.blit(mesg, [dis_width / 6, dis_height / 3])
 
 def gameLoop():
     game_over = False
     game_close = False
+
     x1 = dis_width / 2
     y1 = dis_height / 2
+
     x1_change = 0
     y1_change = 0
+
     snake_List = []
     Length_of_snake = 1
+
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
 
-    # Загрузка темы
-    manager = pygame_gui.UIManager((dis_width, dis_height), 'theme.json')
-
-    restart_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((dis_width / 2 - 150, dis_height / 2), (130, 50)),
-        text='Replay',
-        manager=manager,
-        object_id="#restart_button")
-
-    quit_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((dis_width / 2 + 20, dis_height / 2), (130, 50)),
-        text='Quit',
-        manager=manager,
-        object_id="#quit_button")
-
     while not game_over:
-        while game_close == True:
-            for event in pygame.event.get():
-                if event.type == pygame.USEREVENT:
-                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                        if event.ui_element == restart_button:
-                            gameLoop()
-                        if event.ui_element == quit_button:
-                            game_over = True
-                            game_close = False
-                manager.process_events(event)
 
-            clock.tick(snake_speed)
+        while game_close == True:
+            dis.fill(blue)
+            message("Вы проиграли! Нажмите Q-Выход или C-Играть снова", white)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        game_over = True
+                        game_close = False
+                    if event.key == pygame.K_c:
+                        gameLoop()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
-                game_close = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    y1_change = -snake_block
-                    x1_change = 0
-                elif event.key == pygame.K_DOWN:
-                    y1_change = snake_block
-                    x1_change = 0
-                elif event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT:
                     x1_change = -snake_block
                     y1_change = 0
                 elif event.key == pygame.K_RIGHT:
                     x1_change = snake_block
                     y1_change = 0
+                elif event.key == pygame.K_UP:
+                    y1_change = -snake_block
+                    x1_change = 0
+                elif event.key == pygame.K_DOWN:
+                    y1_change = snake_block
+                    x1_change = 0
 
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
-
         x1 += x1_change
         y1 += y1_change
         dis.fill(blue)
@@ -96,7 +95,6 @@ def gameLoop():
         snake_Head.append(x1)
         snake_Head.append(y1)
         snake_List.append(snake_Head)
-
         if len(snake_List) > Length_of_snake:
             del snake_List[0]
 
@@ -116,6 +114,7 @@ def gameLoop():
         clock.tick(snake_speed)
 
     pygame.quit()
-
+    quit()
 
 gameLoop()
+
